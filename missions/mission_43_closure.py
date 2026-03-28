@@ -1,5 +1,12 @@
 import time
 import logging
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from core.kernel import AntigravityKernel
 from core.config import KernelConfig
 from core.trajectory import Trajectory
@@ -45,7 +52,13 @@ def action_closure_test():
     
     print("\n--- TEST 2: High-Sincerity Action ---")
     try:
-        kernel.execute_sincere_action("ACTION_HIGH", my_action, high_sincere_payload)
+        result = kernel.execute_sincere_action("ACTION_HIGH", my_action, high_sincere_payload)
+        if isinstance(result, dict) and result.get("status") == "AWAITING_APPROVAL":
+            approval_token = kernel.hlg.pending.get("ACTION_HIGH")
+            final_result = kernel.execute_sincere_action(
+                "ACTION_HIGH", my_action, high_sincere_payload, approval_token=approval_token
+            )
+            print(f"[MISSION-43] Approved execution result: {final_result}")
     except RuntimeError as e:
         print(f"[MISSION-43] Unexpected Rejection: {e}")
 
@@ -63,7 +76,10 @@ def action_closure_test():
     
     try:
         print("Environment: Sincere (LEGR=0.8). Gate should be 0.45.")
-        kernel.execute_sincere_action("ACTION_MID_1", my_action, mid_payload)
+        mid_result = kernel.execute_sincere_action("ACTION_MID_1", my_action, mid_payload)
+        if isinstance(mid_result, dict) and mid_result.get("status") == "AWAITING_APPROVAL":
+            approval_token = kernel.hlg.pending.get("ACTION_MID_1")
+            kernel.execute_sincere_action("ACTION_MID_1", my_action, mid_payload, approval_token=approval_token)
     except RuntimeError as e:
         print(f"Unexpected Rejection in Sincere Env: {e}")
 

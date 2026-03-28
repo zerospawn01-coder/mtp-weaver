@@ -1,5 +1,12 @@
 import time
 import logging
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from core.kernel import AntigravityKernel
 from core.config import KernelConfig
 from core.trajectory import Trajectory
@@ -30,19 +37,14 @@ def adversarial_stress_test():
     
     print("[MISSION-41] Deploying Payload 1 (Entropy Nullification)...")
     try:
-        # ICE should reject this if R-value is too high or entropy is too low
-        # In this OS, low entropy = high symmetry = potential rejection
         kernel.logger.info("External Agent injecting: " + str(attack_payload_1))
-        
-        # Here we simulate the kernel's audit process
         r_value = kernel.enforcer.calculate_r_value(attack_payload_1)
         print(f"[MISSION-41] Measured R-Value: {r_value:.4f}")
-        
-        if r_value < 0.65:
-             print("[MISSION-41] ERROR: Gating Failure. OS integrity compromised.")
-        else:
-             print("[MISSION-41] SUCCESS: Gating active. Attack repelled via Sieve Shadow.")
+        kernel.enforcer.validate(attack_payload_1, current_legr=kernel.stats.get("avg_l2_legr", 0.0))
+        print("[MISSION-41] ERROR: Payload passed structural gating unexpectedly.")
 
+    except RuntimeError as e:
+        print(f"[MISSION-41] SUCCESS: Gating active. Attack repelled via Sieve Shadow. {e}")
     except Exception as e:
         print(f"[MISSION-41] ALERT: Unexpected Failure: {e}")
 
