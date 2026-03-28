@@ -8,25 +8,31 @@
 - Includes: `core/`, `missions/`, `tests/`, and the contract-checking runtime around them.
 - Excludes: general cognitive research, incubating experiments, and long-form operational manuals.
 
-## What Belongs Here
+## Non-goals
 
-- Audit and governance runtime logic.
-- Mission-driven verification paths.
-- Kernel contract checks and fail-closed regression coverage.
+- Absorbing broad cognitive modeling work that belongs in `cognitive-lab`.
+- Becoming a catch-all repository for unrelated technical artifacts.
+- Replacing `project-manuals` as the home for reusable process documentation.
 
-## What Does Not Belong Here
+## Inputs
 
-- Broad cognitive modeling work that belongs in `cognitive-lab`.
-- Loose prototypes that should start in `lab-experiments`.
-- Process documentation whose main value is reuse as a runbook.
+- Kernel contracts and runtime assumptions that need explicit audit boundaries.
+- Mission flows that must prove fail-closed behavior.
+- Governance-oriented experiments that are too specialized for the mainline cognitive repository.
+
+## Outputs
+
+- Runnable kernel-to-core validation paths.
+- Audit and mission control surfaces with explicit failure behavior.
+- A repository boundary that makes governance runtime work easier to reason about and review.
 
 ## Validation
 
 - `python run_kernel_contract_checks.py`
 - `python -m unittest discover -s tests -p "test_*.py" -v`
 
-## Positioning
+## Promotion Path
 
-- Role: auxiliary research and audit repository
-- Maintenance level: targeted
-- Success condition: kernel-to-core behavior remains explicit and fail-closed
+- Inbound: governance and audit runtime work that needs a dedicated systems boundary.
+- Outbound: reusable procedures should be documented in `project-manuals`, not hidden here.
+- Repository role: auxiliary research and audit repository with targeted maintenance.
