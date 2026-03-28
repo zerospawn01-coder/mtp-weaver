@@ -36,11 +36,24 @@ def adversarial_stress_test():
         print(f"[MISSION-41] Measured R-Value: {r_value:.4f}")
         kernel.enforcer.validate(attack_payload_1, current_legr=kernel.stats.get("avg_l2_legr", 0.0))
         print("[MISSION-41] ERROR: Payload passed structural gating unexpectedly.")
+        return {
+            "mission": "MISSION_41",
+            "blocked": False,
+            "r_value": r_value,
+            "reason": "payload unexpectedly passed structural gating",
+        }
 
     except RuntimeError as e:
         print(f"[MISSION-41] SUCCESS: Gating active. Attack repelled via Sieve Shadow. {e}")
+        return {
+            "mission": "MISSION_41",
+            "blocked": True,
+            "r_value": r_value,
+            "reason": str(e),
+        }
     except Exception as e:
         print(f"[MISSION-41] ALERT: Unexpected Failure: {e}")
+        raise
 
 if __name__ == "__main__":
     adversarial_stress_test()

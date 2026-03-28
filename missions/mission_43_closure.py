@@ -16,6 +16,15 @@ def action_closure_test():
     config = KernelConfig.balanced()
     config.node_id = "CLOSURE_NODE"
     kernel = AntigravityKernel(config=config)
+    summary = {
+        "mission": "MISSION_43",
+        "low_sincerity_rejected": False,
+        "high_sincerity_requires_approval": False,
+        "high_sincerity_executed": False,
+        "mid_sincere_executes_in_sincere_env": False,
+        "mid_sincere_rejected_in_stagnant_env": False,
+        "invalid_token_rejected": False,
+    }
 
     # Mock action function
     def my_action():
@@ -33,6 +42,7 @@ def action_closure_test():
         kernel.execute_sincere_action("ACTION_LOW", my_action, low_sincere_payload)
     except RuntimeError as e:
         print(f"[MISSION-43] Expected Rejection: {e}")
+        summary["low_sincerity_rejected"] = True
 
     # 2. High-Sincerity Action (R >= 0.65)
     high_sincere_payload = {
@@ -48,13 +58,22 @@ def action_closure_test():
     try:
         result = kernel.execute_sincere_action("ACTION_HIGH", my_action, high_sincere_payload)
         if isinstance(result, dict) and result.get("status") == "AWAITING_APPROVAL":
+            summary["high_sincerity_requires_approval"] = True
             approval_token = kernel.hlg.pending.get("ACTION_HIGH")
             final_result = kernel.execute_sincere_action(
                 "ACTION_HIGH", my_action, high_sincere_payload, approval_token=approval_token
             )
             print(f"[MISSION-43] Approved execution result: {final_result}")
+            summary["high_sincerity_executed"] = (final_result == "SUCCESS")
     except RuntimeError as e:
         print(f"[MISSION-43] Unexpected Rejection: {e}")
+
+    print("\n--- TEST 2B: Invalid Approval Token ---")
+    try:
+        kernel.execute_sincere_action("ACTION_HIGH_INVALID", my_action, high_sincere_payload, approval_token="forged-token")
+    except RuntimeError as e:
+        print(f"[MISSION-43] Expected Invalid Token Rejection: {e}")
+        summary["invalid_token_rejected"] = True
 
     # 3. Dynamic Sieve Test (Stagnation)
     print("\n--- TEST 3: Dynamic Sieve (Stagnation) ---")
@@ -73,7 +92,8 @@ def action_closure_test():
         mid_result = kernel.execute_sincere_action("ACTION_MID_1", my_action, mid_payload)
         if isinstance(mid_result, dict) and mid_result.get("status") == "AWAITING_APPROVAL":
             approval_token = kernel.hlg.pending.get("ACTION_MID_1")
-            kernel.execute_sincere_action("ACTION_MID_1", my_action, mid_payload, approval_token=approval_token)
+            final_result = kernel.execute_sincere_action("ACTION_MID_1", my_action, mid_payload, approval_token=approval_token)
+            summary["mid_sincere_executes_in_sincere_env"] = (final_result == "SUCCESS")
     except RuntimeError as e:
         print(f"Unexpected Rejection in Sincere Env: {e}")
 
@@ -84,6 +104,9 @@ def action_closure_test():
         kernel.execute_sincere_action("ACTION_MID_2", my_action, mid_payload)
     except RuntimeError as e:
         print(f"Expected Rejection in Stagnant Env: {e}")
+        summary["mid_sincere_rejected_in_stagnant_env"] = True
+
+    return summary
 
 if __name__ == "__main__":
     action_closure_test()
