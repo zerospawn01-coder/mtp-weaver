@@ -9,12 +9,14 @@ class BraidRenderer {
     }
 
     clear() {
+        if (!this.svg) return;
         while (this.svg.firstChild) {
             this.svg.removeChild(this.svg.firstChild);
         }
     }
 
     drawBraid(word) {
+        if (!this.svg || !Array.isArray(word)) return;
         this.clear();
         let currentY = this.margin;
         const width = this.svg.clientWidth;
@@ -87,6 +89,7 @@ class BraidRenderer {
 
     setRupture(active) {
         const display = document.getElementById('main-display');
+        if (!display) return;
         if (active) {
             display.classList.add('rupture');
         } else {
