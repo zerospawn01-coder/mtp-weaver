@@ -1,17 +1,11 @@
 import time
 import logging
-import sys
-from pathlib import Path
+from core.runtime import ensure_repo_root_on_path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+ensure_repo_root_on_path()
 
 from core.kernel import AntigravityKernel
 from core.config import KernelConfig
-from core.trajectory import Trajectory
-
-# <SINCERE>
 def action_closure_test():
     """
     Mission 43: Implementation of the Action Closure Test.

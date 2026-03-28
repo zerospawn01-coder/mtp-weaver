@@ -4,11 +4,10 @@ import time
 import logging
 from queue import Empty
 from typing import Any, Dict, Optional
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from core.runtime import ensure_repo_root_on_path, repo_root
+
+REPO_ROOT = ensure_repo_root_on_path()
 
 from core.config import KernelConfig
 from core.cri import contextual_reversibility_index
@@ -107,7 +106,7 @@ class AntigravityKernel:
             self.archivist = StructuralArchivist(storage_dir=self.config.harvest_dir)
 
         # Phase 43: History Anchor (Collective Sovereignty)
-        self.history_anchor = HistoryAnchor(repo_root=REPO_ROOT)
+        self.history_anchor = HistoryAnchor(repo_root=repo_root())
         if not self.history_anchor.verify_integrity():
             print("[KERNEL] SOVEREIGN_VIOLATION: Git history anchor missing or tampered. OS HALT.")
             sys.exit(1)
