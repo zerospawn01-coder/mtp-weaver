@@ -82,33 +82,36 @@ class WeaverApp {
      */
     updateUI(metrics) {
         const { elements, renderer, engine } = this;
+        if (!metrics) return;
         
-        elements.metricCfail.textContent = metrics.cfail;
-        elements.metricDkl.textContent = metrics.dkl;
+        if (elements.metricCfail) elements.metricCfail.textContent = metrics.cfail;
+        if (elements.metricDkl) elements.metricDkl.textContent = metrics.dkl;
 
         const stability = Math.max(0, 100 - (metrics.dkl * 100)).toFixed(0);
-        elements.metricStability.textContent = `${stability}%`;
+        if (elements.metricStability) elements.metricStability.textContent = `${stability}%`;
 
         // Update Gauges
-        elements.gaugeCfail.style.width = `${Math.min(100, metrics.cfail * 100)}%`;
-        elements.gaugeDkl.style.width = `${Math.min(100, metrics.dkl * 100)}%`;
-        elements.gaugeStability.style.width = `${stability}%`;
+        if (elements.gaugeCfail) elements.gaugeCfail.style.width = `${Math.min(100, metrics.cfail * 100)}%`;
+        if (elements.gaugeDkl) elements.gaugeDkl.style.width = `${Math.min(100, metrics.dkl * 100)}%`;
+        if (elements.gaugeStability) elements.gaugeStability.style.width = `${stability}%`;
 
         // Logic Drift Visual Warning
-        if (metrics.dkl > 0.4) {
-            elements.gaugeDkl.style.background = 'var(--accent-danger)';
-        } else if (metrics.dkl > 0.2) {
-            elements.gaugeDkl.style.background = 'var(--accent-warning)';
-        } else {
-            elements.gaugeDkl.style.background = 'var(--accent-safe)';
+        if (elements.gaugeDkl) {
+            if (metrics.dkl > 0.4) {
+                elements.gaugeDkl.style.background = 'var(--accent-danger)';
+            } else if (metrics.dkl > 0.2) {
+                elements.gaugeDkl.style.background = 'var(--accent-warning)';
+            } else {
+                elements.gaugeDkl.style.background = 'var(--accent-safe)';
+            }
         }
 
         // Silent Gate Response (Inhibit high-K content)
         if (metrics.isSilent) {
-            elements.silentGateOverlay.style.display = 'block';
+            if (elements.silentGateOverlay) elements.silentGateOverlay.style.display = 'block';
             renderer.setRupture(true);
         } else {
-            elements.silentGateOverlay.style.display = 'none';
+            if (elements.silentGateOverlay) elements.silentGateOverlay.style.display = 'none';
             renderer.setRupture(false);
         }
 
@@ -149,12 +152,12 @@ class WeaverApp {
             const depth = (Math.random() * 100).toFixed(1);
             if (elements.discoveryDepth) {
                 elements.discoveryDepth.textContent = `${depth}ly`;
-                elements.gaugeDiscovery.style.width = `${depth}%`;
+                if (elements.gaugeDiscovery) elements.gaugeDiscovery.style.width = `${depth}%`;
             }
 
             // Global Rupture Check
             if (mockPulse.some(r => r.status === "RUPTURE" || r.status === "KNOT_DETECTED")) {
-                elements.silentGateOverlay.style.display = 'block';
+                if (elements.silentGateOverlay) elements.silentGateOverlay.style.display = 'block';
                 this.renderer.setRupture(true);
             }
         } catch (err) {

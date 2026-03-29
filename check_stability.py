@@ -32,10 +32,15 @@ def check_stability(freq_file):
         print(f"AUDITOR ERROR: {e}")
         sys.exit(1)
 
+def main(argv=None):
+    args = list(sys.argv[1:] if argv is None else argv)
+    if len(args) < 1:
+        print("Usage: python check_stability.py <freq_file>")
+        return 1
+    check_stability(args[0])
+    return 0
+
+
 # <SINCERE>
 if __name__ == "__main__":
-    # <SINCERE>
-    if len(sys.argv) < 2:
-        print("Usage: python check_stability.py <freq_file>")
-    else:
-        check_stability(sys.argv[1])
+    raise SystemExit(main())

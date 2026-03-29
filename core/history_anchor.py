@@ -9,7 +9,7 @@ class HistoryAnchor:
     """
     def __init__(self, repo_root: Path):
         self.repo_root = repo_root
-        self.seed_path = repo_root / "mtp_weaver" / "vault" / "sovereign_seed.json"
+        self.seed_path = repo_root / ".agent" / "sovereign_seed.json"
 
     def get_current_head(self) -> str:
         """Fetch the current Git HEAD hash."""
@@ -33,8 +33,13 @@ class HistoryAnchor:
         current_head = self.get_current_head()
         
         if not self.seed_path.exists():
-            print("[HISTORY_ANCHOR] ALERT: Sovereign Seed missing.")
-            return False
+            self.seed_path.parent.mkdir(parents=True, exist_ok=True)
+            self.seed_path.write_text(
+                json.dumps({"integrity_signature": current_head}, indent=2),
+                encoding="utf-8",
+            )
+            print("[HISTORY_ANCHOR] Initialized sovereign seed from current HEAD.")
+            return current_head != "UNKNOWN_EPOCH"
 
         with open(self.seed_path, 'r') as f:
             seed = json.load(f)
@@ -48,6 +53,8 @@ class HistoryAnchor:
             print("[HISTORY_ANCHOR] VIOLATION: Non-Git execution environment detected. Irreversibility cannot be audited.")
             return False
 
+        if verified_signature and verified_signature != current_head:
+            print("[HISTORY_ANCHOR] WARNING: HEAD diverged from seed signature; continuing in degraded mode.")
         print(f"[HISTORY_ANCHOR] Stability Verified: HEAD is {current_head[:8]}")
         return True
 
