@@ -30,6 +30,16 @@
 
 - `python run_kernel_contract_checks.py`
 - `python -m unittest discover -s tests -p "test_*.py" -v`
+- `python tools/ci_gate.py validate-kernel-contract`
+- `python tools/ci_gate.py validate-mission-regression`
+- `python tools/ci_gate.py validate-governance`
+- `python tools/ci_gate.py unit-tests`
+
+## CI Gates
+
+- Required checks should be set to the workflow job names: `validate-kernel-contract`, `validate-mission-regression`, `validate-governance`, and `unit-tests`.
+- Every gate is fail-closed and emits structured `PASS` or `FAIL` JSON. There is no warning path.
+- Auto-merge should only be enabled after all required checks are green.
 
 ## Promotion Path
 
